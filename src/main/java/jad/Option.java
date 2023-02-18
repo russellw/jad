@@ -78,7 +78,11 @@ public abstract class Option {
     options[1] =
         new Option("show version", null, "V", "version") {
           void accept(String arg) {
-            printVersion();
+            try {
+              printVersion();
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
           }
         };
     System.arraycopy(options0, 0, options, 2, options0.length);
@@ -95,11 +99,9 @@ public abstract class Option {
             continue;
           }
           case '-' -> {
-            switch (s) {
-              case "--" -> {
-                parsingOptions = false;
-                continue;
-              }
+            if (s.equals("--")) {
+              parsingOptions = false;
+              continue;
             }
             var o = s;
 
