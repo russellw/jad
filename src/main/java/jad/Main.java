@@ -1,8 +1,11 @@
 package jad;
 
-/** Hello world! */
+import java.io.IOException;
+
 public class Main {
-  public static void main(String[] args) {
-    System.out.println("Hello World!");
+  private static final Option[] OPTIONS = new Option[] {};
+
+  public static void main(String[] args) throws IOException {
+    Option.parse(OPTIONS, args);
   }
 }
