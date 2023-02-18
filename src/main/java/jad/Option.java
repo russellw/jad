@@ -12,8 +12,6 @@ public abstract class Option {
   private final String[] names;
 
   private static boolean parsingOptions = true;
-
-  static boolean readStdin = false;
   static final List<String> positionalArgs = new ArrayList<>();
 
   Option(String description, String argName, String... names) {
@@ -80,7 +78,7 @@ public abstract class Option {
     options[1] =
         new Option("show version", null, "V", "version") {
           void accept(String arg) {
-            version();
+            printVersion();
           }
         };
     System.arraycopy(options0, 0, options, 2, options0.length);
@@ -98,10 +96,6 @@ public abstract class Option {
           }
           case '-' -> {
             switch (s) {
-              case "-" -> {
-                readStdin = true;
-                continue;
-              }
               case "--" -> {
                 parsingOptions = false;
                 continue;
@@ -156,12 +150,16 @@ public abstract class Option {
     }
   }
 
-  private static void version() {
-    System.out.print("Olivine version 0");
-    var path = System.getProperty("java.class.path");
-    if (!(".".equals(path))) System.out.print(", " + path);
-    System.out.println();
+  private static String version() throws IOException {
+    var properties = new Properties();
+    try (var stream = Main.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF")) {
+      properties.load(stream);
+      return properties.getProperty("Implementation-Version");
+    }
+  }
 
+  private static void printVersion() throws IOException {
+    System.out.printf("JAD %s, %s\n", version(), System.getProperty("java.class.path"));
     System.out.printf(
         "%s, %s, %s\n",
         System.getProperty("java.vm.name"),
