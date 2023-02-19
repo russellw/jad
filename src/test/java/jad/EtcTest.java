@@ -15,9 +15,10 @@ public class EtcTest {
   static String name;
   static String superName;
   static final Set<String> methods = new HashSet<>();
+  static int end;
 
-  static final class ClassPrinter extends ClassVisitor {
-    ClassPrinter() {
+  static final class TestClassPrinter extends ClassVisitor {
+    TestClassPrinter() {
       super(ASM7);
     }
 
@@ -39,6 +40,11 @@ public class EtcTest {
       methods.add(name);
       return null;
     }
+
+    @Override
+    public void visitEnd() {
+      end++;
+    }
   }
 
   @Test
@@ -50,11 +56,12 @@ public class EtcTest {
   public void classReader() {
     try {
       var classReader = new ClassReader("java.lang.String");
-      var classPrinter = new ClassPrinter();
+      var classPrinter = new TestClassPrinter();
       classReader.accept(classPrinter, 0);
       assertEquals(name, "java/lang/String");
       assertEquals(superName, "java/lang/Object");
       assert methods.contains("equals");
+      assertEquals(end, 1);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
