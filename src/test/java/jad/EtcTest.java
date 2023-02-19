@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.tree.ClassNode;
 
 public class EtcTest {
   static String name;
@@ -62,6 +63,25 @@ public class EtcTest {
       assertEquals(superName, "java/lang/Object");
       assert methods.contains("equals");
       assertEquals(end, 1);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  public void classNode() {
+    try {
+      var classReader = new ClassReader("java.lang.String");
+      var classNode = new ClassNode(ASM9);
+      classReader.accept(classNode, 0);
+
+      assertTrue((classNode.access & ACC_PUBLIC) != 0);
+      assertEquals(classNode.name, "java/lang/String");
+      assertEquals(classNode.superName, "java/lang/Object");
+
+      final Set<String> methods = new HashSet<>();
+      for (var methodNode : classNode.methods) methods.add(methodNode.name);
+      assert methods.contains("equals");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
