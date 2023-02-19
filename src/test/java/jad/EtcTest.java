@@ -19,7 +19,7 @@ public class EtcTest {
 
   static final class TestClassPrinter extends ClassVisitor {
     TestClassPrinter() {
-      super(ASM7);
+      super(ASM9);
     }
 
     @Override
