@@ -14,7 +14,33 @@ public final class HtmlPrinter {
   private Set<String> classNames = new HashSet<>();
   private PrintWriter writer;
 
-  private void print(MethodNode methodNode) {}
+  private void print(MethodNode methodNode) {
+    if ((methodNode.access & ACC_PUBLIC) != 0) writer.print("public ");
+    if ((methodNode.access & ACC_PRIVATE) != 0) writer.print("private ");
+    if ((methodNode.access & ACC_PROTECTED) != 0) writer.print("protected ");
+
+    if ((methodNode.access & ACC_ABSTRACT) != 0) writer.print("abstract ");
+    if ((methodNode.access & ACC_FINAL) != 0) writer.print("final ");
+    if ((methodNode.access & ACC_STATIC) != 0) writer.print("static ");
+
+    if ((methodNode.access & ACC_SYNCHRONIZED) != 0) writer.print("synchronized ");
+    if ((methodNode.access & ACC_NATIVE) != 0) writer.print("native ");
+    if ((methodNode.access & ACC_STRICT) != 0) writer.print("strictfp ");
+
+    writer.print(methodNode.name);
+
+    if (methodNode.parameters != null) {
+      writer.print('(');
+      var more = false;
+      for (var parameterNode : methodNode.parameters) {
+        if (!more) writer.print(", ");
+        more = true;
+        writer.print(parameterNode.name);
+      }
+      writer.print(')');
+    }
+    writer.println();
+  }
 
   private void print(ClassNode classNode) {
     // HTML header
@@ -35,6 +61,9 @@ public final class HtmlPrinter {
     else writer.print("class ");
 
     writer.println(classNode.name);
+
+    // methods
+    for (var methodNode : classNode.methods) print(methodNode);
   }
 
   private static String simple(String name) {
