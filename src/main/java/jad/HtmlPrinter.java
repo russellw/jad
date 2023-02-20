@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -27,18 +28,19 @@ public final class HtmlPrinter {
     if ((methodNode.access & ACC_NATIVE) != 0) writer.print("native ");
     if ((methodNode.access & ACC_STRICT) != 0) writer.print("strictfp ");
 
+    writer.print(Type.getReturnType(methodNode.desc).getClassName());
+    writer.print(' ');
     writer.print(methodNode.name);
 
-    if (methodNode.parameters != null) {
-      writer.print('(');
-      var more = false;
-      for (var parameterNode : methodNode.parameters) {
-        if (!more) writer.print(", ");
-        more = true;
-        writer.print(parameterNode.name);
-      }
-      writer.print(')');
+    writer.print('(');
+    var more = false;
+    for (var type : Type.getArgumentTypes(methodNode.desc)) {
+      if (more) writer.print(", ");
+      more = true;
+      writer.print(type.getClassName());
     }
+    writer.print(')');
+
     writer.println();
   }
 
@@ -50,6 +52,8 @@ public final class HtmlPrinter {
     writer.printf("<title>%s</title>\n", simple(classNode.name));
 
     // class header
+    writer.print("<code>");
+
     if ((classNode.access & ACC_PUBLIC) != 0) writer.print("public ");
     if ((classNode.access & ACC_PRIVATE) != 0) writer.print("private ");
     if ((classNode.access & ACC_PROTECTED) != 0) writer.print("protected ");
@@ -60,7 +64,91 @@ public final class HtmlPrinter {
     if ((classNode.access & ACC_INTERFACE) != 0) writer.print("interface ");
     else writer.print("class ");
 
-    writer.println(classNode.name);
+    writer.print(classNode.name);
+
+    if (classNode.superName != null && !classNode.superName.equals("java/lang/Object"))
+      writer.print(" extends " + classNode.superName);
+
+    if (!classNode.interfaces.isEmpty()) {
+      writer.print(" implements");
+      for (var s : classNode.interfaces) writer.print(' ' + s);
+    }
+
+    writer.println("</code>");
+
+    // attributes
+    writer.println("<table class=\"bordered\">");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Version");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.version);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Flags");
+    writer.printf("<td class=\"bordered\"><code>0x%x", classNode.access);
+    if ((classNode.access & ACC_PUBLIC) != 0) writer.print(" ACC_PUBLIC");
+    if ((classNode.access & ACC_PRIVATE) != 0) writer.print(" ACC_PRIVATE");
+    if ((classNode.access & ACC_PROTECTED) != 0) writer.print(" ACC_PROTECTED");
+    if ((classNode.access & ACC_FINAL) != 0) writer.print(" ACC_FINAL");
+    if ((classNode.access & ACC_SUPER) != 0) writer.print(" ACC_SUPER");
+    if ((classNode.access & ACC_INTERFACE) != 0) writer.print(" ACC_INTERFACE");
+    if ((classNode.access & ACC_ABSTRACT) != 0) writer.print(" ACC_ABSTRACT");
+    if ((classNode.access & ACC_SYNTHETIC) != 0) writer.print(" ACC_SYNTHETIC");
+    if ((classNode.access & ACC_ANNOTATION) != 0) writer.print(" ACC_ANNOTATION");
+    if ((classNode.access & ACC_ENUM) != 0) writer.print(" ACC_ENUM");
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Name");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.name);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Signature");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.signature);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Super");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.superName);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Source file");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.sourceFile);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Source debug");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.sourceDebug);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Outer class");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.outerClass);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Outer method");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.outerMethod);
+    writer.println("</code>");
+
+    writer.println("<tr>");
+    writer.print("<td class=\"bordered\">Outer method desc");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(classNode.outerMethodDesc);
+    writer.println("</code>");
+
+    writer.println("</table>");
 
     // methods
     for (var methodNode : classNode.methods) print(methodNode);
