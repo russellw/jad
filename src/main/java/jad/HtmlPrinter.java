@@ -17,12 +17,39 @@ public final class HtmlPrinter {
   private PrintWriter writer;
 
   private void print(FieldNode fieldNode) {
-    // embellished name
+    // heading
+    var name = fieldNode.name;
+    writer.printf("<h2 id=\"%s\">%s</h2>\n", name, name);
 
+    // embellished name
+    writer.print("<code>");
+
+    if ((fieldNode.access & ACC_PUBLIC) != 0) writer.print("public ");
+    if ((fieldNode.access & ACC_PRIVATE) != 0) writer.print("private ");
+    if ((fieldNode.access & ACC_PROTECTED) != 0) writer.print("protected ");
+
+    if ((fieldNode.access & ACC_FINAL) != 0) writer.print("final ");
+    if ((fieldNode.access & ACC_STATIC) != 0) writer.print("static ");
+
+    if ((fieldNode.access & ACC_VOLATILE) != 0) writer.print(" ");
+    if ((fieldNode.access & ACC_TRANSIENT) != 0) writer.print(" ");
+
+    writer.print(Type.getType(fieldNode.desc).getClassName());
+    writer.print(' ');
+    writer.print(fieldNode.name);
+
+    writer.print("</code><br>\n");
+    writer.print("<br>\n");
   }
 
   private void print(MethodNode methodNode) {
+    // heading
+    var name = esc(methodNode.name);
+    writer.printf("<h2 id=\"%s\">%s</h2>\n", name, name);
+
     // embellished name
+    writer.print("<code>");
+
     if ((methodNode.access & ACC_PUBLIC) != 0) writer.print("public ");
     if ((methodNode.access & ACC_PRIVATE) != 0) writer.print("private ");
     if ((methodNode.access & ACC_PROTECTED) != 0) writer.print("protected ");
@@ -37,7 +64,7 @@ public final class HtmlPrinter {
 
     writer.print(Type.getReturnType(methodNode.desc).getClassName());
     writer.print(' ');
-    writer.print(methodNode.name);
+    writer.print(esc(methodNode.name));
 
     writer.print('(');
     var more = false;
@@ -48,7 +75,8 @@ public final class HtmlPrinter {
     }
     writer.print(')');
 
-    writer.print('\n');
+    writer.print("</code><br>\n");
+    writer.print("<br>\n");
   }
 
   private void print(ClassNode classNode) {
@@ -80,8 +108,24 @@ public final class HtmlPrinter {
     writer.print("<ul>\n");
     writer.print("<li><a href=\"#Contents\">Contents</a>\n");
     writer.print("<li><a href=\"#Class header\">Class header</a>\n");
-    if (!classNode.fields.isEmpty()) writer.print("<li><a href=\"#Fields\">Fields</a>\n");
-    if (!classNode.methods.isEmpty()) writer.print("<li><a href=\"#Methods\">Methods</a>\n");
+    if (!classNode.fields.isEmpty()) {
+      writer.print("<li><a href=\"#Fields\">Fields</a>\n");
+      writer.print("<ul>\n");
+      for (var fieldNode : classNode.fields) {
+        var name = fieldNode.name;
+        writer.printf("<li><a href=\"#%s\">%s</a>\n", name, name);
+      }
+      writer.print("</ul>\n");
+    }
+    if (!classNode.methods.isEmpty()) {
+      writer.print("<li><a href=\"#Methods\">Methods</a>\n");
+      writer.print("<ul>\n");
+      for (var methodNode : classNode.methods) {
+        var name = esc(methodNode.name);
+        writer.printf("<li><a href=\"#%s\">%s</a>\n", name, name);
+      }
+      writer.print("</ul>\n");
+    }
     writer.print("</ul>\n");
 
     // class header
@@ -194,6 +238,12 @@ public final class HtmlPrinter {
     // methods
     if (!classNode.methods.isEmpty()) writer.print("<h1 id=\"Methods\">Methods</h1>\n");
     for (var methodNode : classNode.methods) print(methodNode);
+  }
+
+  private static String esc(String s) {
+    s = s.replace("<", "&lt;");
+    s = s.replace(">", "&gt;");
+    return s;
   }
 
   private static String simple(String name) {
