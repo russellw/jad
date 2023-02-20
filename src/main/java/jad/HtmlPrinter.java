@@ -9,13 +9,20 @@ import java.util.HashSet;
 import java.util.Set;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public final class HtmlPrinter {
   private Set<String> classNames = new HashSet<>();
   private PrintWriter writer;
 
+  private void print(FieldNode fieldNode) {
+    // embellished name
+
+  }
+
   private void print(MethodNode methodNode) {
+    // embellished name
     if ((methodNode.access & ACC_PUBLIC) != 0) writer.print("public ");
     if ((methodNode.access & ACC_PRIVATE) != 0) writer.print("private ");
     if ((methodNode.access & ACC_PROTECTED) != 0) writer.print("protected ");
@@ -50,8 +57,37 @@ public final class HtmlPrinter {
     writer.print("<html lang=\"en\">\n");
     writer.print("<meta charset=\"utf-8\"/>\n");
     writer.printf("<title>%s</title>\n", simple(classNode.name));
+    writer.print("<style>\n");
+    writer.print("caption {\n");
+    writer.print("text-align: left;\n");
+    writer.print("white-space: nowrap;\n");
+    writer.print("}\n");
+    writer.print("table.bordered, th.bordered, td.bordered {\n");
+    writer.print("border: 1px solid;\n");
+    writer.print("border-collapse: collapse;\n");
+    writer.print("padding: 5px;\n");
+    writer.print("}\n");
+    writer.print("table.padded, th.padded, td.padded {\n");
+    writer.print("padding: 3px;\n");
+    writer.print("}\n");
+    writer.print("td.fixed {\n");
+    writer.print("white-space: nowrap;\n");
+    writer.print("}\n");
+    writer.print("</style>\n");
+
+    // contents
+    writer.print("<h1 id=\"Contents\">Contents</h1>\n");
+    writer.print("<ul>\n");
+    writer.print("<li><a href=\"#Contents\">Contents</a>\n");
+    writer.print("<li><a href=\"#Class header\">Class header</a>\n");
+    if (!classNode.fields.isEmpty()) writer.print("<li><a href=\"#Fields\">Fields</a>\n");
+    if (!classNode.methods.isEmpty()) writer.print("<li><a href=\"#Methods\">Methods</a>\n");
+    writer.print("</ul>\n");
 
     // class header
+    writer.print("<h1 id=\"Class header\">Class header</h1>\n");
+
+    // embellished name
     writer.print("<code>");
 
     if ((classNode.access & ACC_PUBLIC) != 0) writer.print("public ");
@@ -74,9 +110,10 @@ public final class HtmlPrinter {
       for (var s : classNode.interfaces) writer.print(' ' + s);
     }
 
-    writer.print("</code>\n");
+    writer.print("</code><br>\n");
+    writer.print("<br>\n");
 
-    // attributes
+    // class node fields
     writer.print("<table class=\"bordered\">\n");
 
     writer.print("<tr>\n");
@@ -150,7 +187,12 @@ public final class HtmlPrinter {
 
     writer.print("</table>\n");
 
+    // fields
+    if (!classNode.fields.isEmpty()) writer.print("<h1 id=\"Fields\">Fields</h1>\n");
+    for (var fieldNode : classNode.fields) print(fieldNode);
+
     // methods
+    if (!classNode.methods.isEmpty()) writer.print("<h1 id=\"Methods\">Methods</h1>\n");
     for (var methodNode : classNode.methods) print(methodNode);
   }
 
