@@ -41,14 +41,14 @@ public final class HtmlPrinter {
     }
     writer.print(')');
 
-    writer.println();
+    writer.print('\n');
   }
 
   private void print(ClassNode classNode) {
     // HTML header
-    writer.println("<!DOCTYPE html>");
-    writer.println("<html lang=\"en\">");
-    writer.println("<meta charset=\"utf-8\"/>");
+    writer.print("<!DOCTYPE html>\n");
+    writer.print("<html lang=\"en\">\n");
+    writer.print("<meta charset=\"utf-8\"/>\n");
     writer.printf("<title>%s</title>\n", simple(classNode.name));
 
     // class header
@@ -74,19 +74,19 @@ public final class HtmlPrinter {
       for (var s : classNode.interfaces) writer.print(' ' + s);
     }
 
-    writer.println("</code>");
+    writer.print("</code>\n");
 
     // attributes
-    writer.println("<table class=\"bordered\">");
+    writer.print("<table class=\"bordered\">\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Version");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Version\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.version);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Flags");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Flags\n");
     writer.printf("<td class=\"bordered\"><code>0x%x", classNode.access);
     if ((classNode.access & ACC_PUBLIC) != 0) writer.print(" ACC_PUBLIC");
     if ((classNode.access & ACC_PRIVATE) != 0) writer.print(" ACC_PRIVATE");
@@ -98,57 +98,57 @@ public final class HtmlPrinter {
     if ((classNode.access & ACC_SYNTHETIC) != 0) writer.print(" ACC_SYNTHETIC");
     if ((classNode.access & ACC_ANNOTATION) != 0) writer.print(" ACC_ANNOTATION");
     if ((classNode.access & ACC_ENUM) != 0) writer.print(" ACC_ENUM");
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Name");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Name\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.name);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Signature");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Signature\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.signature);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Super");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Super\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.superName);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Source file");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Source file\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.sourceFile);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Source debug");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Source debug\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.sourceDebug);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Outer class");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Outer class\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.outerClass);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Outer method");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Outer method\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.outerMethod);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("<tr>");
-    writer.print("<td class=\"bordered\">Outer method desc");
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Outer method desc\n");
     writer.print("<td class=\"bordered\"><code>");
     writer.print(classNode.outerMethodDesc);
-    writer.println("</code>");
+    writer.print("</code>\n");
 
-    writer.println("</table>");
+    writer.print("</table>\n");
 
     // methods
     for (var methodNode : classNode.methods) print(methodNode);
