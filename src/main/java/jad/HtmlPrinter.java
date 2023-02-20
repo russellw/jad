@@ -31,15 +31,64 @@ public final class HtmlPrinter {
     if ((fieldNode.access & ACC_FINAL) != 0) writer.print("final ");
     if ((fieldNode.access & ACC_STATIC) != 0) writer.print("static ");
 
-    if ((fieldNode.access & ACC_VOLATILE) != 0) writer.print(" ");
-    if ((fieldNode.access & ACC_TRANSIENT) != 0) writer.print(" ");
+    if ((fieldNode.access & ACC_VOLATILE) != 0) writer.print("volatile ");
+    if ((fieldNode.access & ACC_TRANSIENT) != 0) writer.print("transient ");
 
     writer.print(Type.getType(fieldNode.desc).getClassName());
     writer.print(' ');
     writer.print(fieldNode.name);
 
+    if (fieldNode.value != null) {
+      writer.print(" = ");
+      writer.print(fieldNode.value);
+    }
+
     writer.print("</code><br>\n");
     writer.print("<br>\n");
+
+    // field node fields
+    writer.print("<table class=\"bordered\">\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Flags\n");
+    writer.printf("<td class=\"bordered\"><code>0x%x", fieldNode.access);
+    if ((fieldNode.access & ACC_PUBLIC) != 0) writer.print(" ACC_PUBLIC");
+    if ((fieldNode.access & ACC_PRIVATE) != 0) writer.print(" ACC_PRIVATE");
+    if ((fieldNode.access & ACC_PROTECTED) != 0) writer.print(" ACC_PROTECTED");
+    if ((fieldNode.access & ACC_STATIC) != 0) writer.print(" ACC_STATIC");
+    if ((fieldNode.access & ACC_FINAL) != 0) writer.print(" ACC_FINAL");
+    if ((fieldNode.access & ACC_VOLATILE) != 0) writer.print(" ACC_VOLATILE");
+    if ((fieldNode.access & ACC_TRANSIENT) != 0) writer.print(" ACC_TRANSIENT");
+    if ((fieldNode.access & ACC_SYNTHETIC) != 0) writer.print(" ACC_SYNTHETIC");
+    if ((fieldNode.access & ACC_ENUM) != 0) writer.print(" ACC_ENUM");
+    if ((fieldNode.access & ACC_DEPRECATED) != 0) writer.print(" ACC_DEPRECATED");
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Name\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(fieldNode.name);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Desc\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(fieldNode.desc);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Signature\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(fieldNode.signature);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Value\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(fieldNode.value);
+    writer.print("</code>\n");
+
+    writer.print("</table>\n");
   }
 
   private void print(MethodNode methodNode) {
@@ -75,8 +124,66 @@ public final class HtmlPrinter {
     }
     writer.print(')');
 
+    if (!methodNode.exceptions.isEmpty()) {
+      writer.print(" throws");
+      more = false;
+      for (var s : methodNode.exceptions) {
+        if (more) writer.print(',');
+        more = true;
+        writer.print(' ');
+        writer.print(s);
+      }
+    }
+
     writer.print("</code><br>\n");
     writer.print("<br>\n");
+
+    // method node fields
+    writer.print("<table class=\"bordered\">\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Flags\n");
+    writer.printf("<td class=\"bordered\"><code>0x%x", methodNode.access);
+    if ((methodNode.access & ACC_PUBLIC) != 0) writer.print(" ACC_PUBLIC");
+    if ((methodNode.access & ACC_PRIVATE) != 0) writer.print(" ACC_PRIVATE");
+    if ((methodNode.access & ACC_PROTECTED) != 0) writer.print(" ACC_PROTECTED");
+    if ((methodNode.access & ACC_STATIC) != 0) writer.print(" ACC_STATIC");
+    if ((methodNode.access & ACC_FINAL) != 0) writer.print(" ACC_FINAL");
+    if ((methodNode.access & ACC_SYNCHRONIZED) != 0) writer.print(" ACC_SYNCHRONIZED");
+    if ((methodNode.access & ACC_BRIDGE) != 0) writer.print(" ACC_BRIDGE");
+    if ((methodNode.access & ACC_VARARGS) != 0) writer.print(" ACC_VARARGS");
+    if ((methodNode.access & ACC_NATIVE) != 0) writer.print(" ACC_NATIVE");
+    if ((methodNode.access & ACC_ABSTRACT) != 0) writer.print(" ACC_ABSTRACT");
+    if ((methodNode.access & ACC_STRICT) != 0) writer.print(" ACC_STRICT");
+    if ((methodNode.access & ACC_SYNTHETIC) != 0) writer.print(" ACC_SYNTHETIC");
+    if ((methodNode.access & ACC_DEPRECATED) != 0) writer.print(" ACC_DEPRECATED");
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Name\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.name);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Desc\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.desc);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Signature\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.signature);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Annotation default\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.annotationDefault);
+    writer.print("</code>\n");
+
+    writer.print("</table>\n");
   }
 
   private void print(ClassNode classNode) {
@@ -151,7 +258,13 @@ public final class HtmlPrinter {
 
     if (!classNode.interfaces.isEmpty()) {
       writer.print(" implements");
-      for (var s : classNode.interfaces) writer.print(' ' + s);
+      var more = false;
+      for (var s : classNode.interfaces) {
+        if (more) writer.print(',');
+        more = true;
+        writer.print(' ');
+        writer.print(s);
+      }
     }
 
     writer.print("</code><br>\n");
@@ -179,6 +292,7 @@ public final class HtmlPrinter {
     if ((classNode.access & ACC_SYNTHETIC) != 0) writer.print(" ACC_SYNTHETIC");
     if ((classNode.access & ACC_ANNOTATION) != 0) writer.print(" ACC_ANNOTATION");
     if ((classNode.access & ACC_ENUM) != 0) writer.print(" ACC_ENUM");
+    if ((classNode.access & ACC_DEPRECATED) != 0) writer.print(" ACC_DEPRECATED");
     writer.print("</code>\n");
 
     writer.print("<tr>\n");
