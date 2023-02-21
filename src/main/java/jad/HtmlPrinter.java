@@ -135,6 +135,7 @@ public final class HtmlPrinter {
 
     var line = -1;
     String label = null;
+    FrameNode frameNode = null;
     for (var abstractInsnNode : methodNode.instructions) {
       if (abstractInsnNode instanceof LineNumberNode lineNumberNode) {
         assert line < 0;
@@ -144,6 +145,11 @@ public final class HtmlPrinter {
       if (abstractInsnNode instanceof LabelNode labelNode) {
         assert label == null;
         label = labels.get(labelNode);
+        continue;
+      }
+      if (abstractInsnNode instanceof FrameNode frameNode1) {
+        // assert frameNode == null;
+        frameNode = frameNode1;
         continue;
       }
 
