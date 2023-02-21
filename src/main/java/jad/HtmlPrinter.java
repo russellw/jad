@@ -11,35 +11,6 @@ import org.objectweb.asm.tree.*;
 public final class HtmlPrinter {
   private Set<String> classNames = new HashSet<>();
   private PrintWriter writer;
-  private Map<LabelNode, String> labels;
-
-  private void print(AbstractInsnNode abstractInsnNode) {
-    writer.print("<tr>\n");
-
-    // line number
-    writer.print("<td>");
-    if (abstractInsnNode instanceof LineNumberNode lineNumberNode) {
-      writer.print(lineNumberNode.line);
-      writer.print('\n');
-      return;
-    }
-    writer.print('\n');
-
-    // label
-    writer.print("<td>");
-    if (abstractInsnNode instanceof LabelNode labelNode) {
-      writer.print(labels.get(labelNode));
-      writer.print('\n');
-      return;
-    }
-    writer.print('\n');
-
-    var opcode = abstractInsnNode.getOpcode();
-    if (opcode >= 0) writer.print(Etc.mnemonics[opcode]);
-    switch (abstractInsnNode.getType()) {
-    }
-    writer.print('\n');
-  }
 
   private void print(MethodNode methodNode) {
     // heading
@@ -144,21 +115,68 @@ public final class HtmlPrinter {
     writer.print('\n');
 
     writer.print("</table>\n");
+    writer.print("<br>\n");
+
     // TODO parameters and annotations
 
     // instructions
     var i = 0;
+    var labels = new HashMap<LabelNode, String>();
     for (var abstractInsnNode : methodNode.instructions)
       if (abstractInsnNode instanceof LabelNode labelNode) labels.put(labelNode, "L" + i++);
 
     writer.print("<table>\n");
+
     writer.print("<tr>\n");
     writer.print("<th>Line\n");
     writer.print("<th>Label\n");
     writer.print("<th>Opcode\n");
     writer.print("<th>Operands\n");
 
-    for (var abstractInsnNode : methodNode.instructions) print(abstractInsnNode);
+    var line = -1;
+    String label = null;
+    for (var abstractInsnNode : methodNode.instructions) {
+      if (abstractInsnNode instanceof LineNumberNode lineNumberNode) {
+        assert line < 0;
+        line = lineNumberNode.line;
+        continue;
+      }
+      if (abstractInsnNode instanceof LabelNode labelNode) {
+        assert label == null;
+        label = labels.get(labelNode);
+        continue;
+      }
+
+      writer.print("<tr>\n");
+
+      // line number
+      writer.print("<td>");
+      if (line >= 0) {
+        writer.print(line);
+        line = -1;
+      }
+      writer.print('\n');
+
+      // label
+      writer.print("<td>");
+      if (label != null) {
+        writer.print(label);
+        label = null;
+      }
+      writer.print('\n');
+
+      // opcode
+      writer.print("<td>");
+      var opcode = abstractInsnNode.getOpcode();
+      if (opcode >= 0) writer.print(Etc.mnemonics[opcode]);
+
+      // operands
+      switch (abstractInsnNode.getType()) {
+      }
+
+      writer.print('\n');
+    }
+
     writer.print("</table>\n");
   }
 
