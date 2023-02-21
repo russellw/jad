@@ -178,6 +178,70 @@ public final class HtmlPrinter {
 
       // operands
       switch (abstractInsnNode.getType()) {
+        case AbstractInsnNode.INSN -> {}
+        case AbstractInsnNode.INT_INSN -> {
+          var a = (IntInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.operand);
+        }
+        case AbstractInsnNode.VAR_INSN -> {
+          var a = (VarInsnNode) abstractInsnNode;
+          writer.print("<td>%");
+          writer.print(a.var);
+        }
+        case AbstractInsnNode.TYPE_INSN -> {
+          var a = (TypeInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.desc);
+        }
+        case AbstractInsnNode.FIELD_INSN -> {
+          var a = (FieldInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.name);
+          writer.print(' ');
+          writer.print(a.getType());
+        }
+        case AbstractInsnNode.METHOD_INSN -> {
+          var a = (MethodInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.name);
+          writer.print(' ');
+          writer.print(a.getType());
+        }
+        case AbstractInsnNode.JUMP_INSN -> {
+          var a = (JumpInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(labels.get(a.label));
+        }
+        case AbstractInsnNode.LDC_INSN -> {
+          var a = (LdcInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.cst);
+        }
+        case AbstractInsnNode.IINC_INSN -> {
+          var a = (IincInsnNode) abstractInsnNode;
+          writer.print("<td>%");
+          writer.print(a.var);
+          writer.print(' ');
+          writer.print(a.incr);
+        }
+        case AbstractInsnNode.TABLESWITCH_INSN -> {
+          var a = (TableSwitchInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.min);
+          writer.print(' ');
+          writer.print(a.max);
+          writer.print(' ');
+          writer.print(a.labels);
+        }
+        case AbstractInsnNode.LOOKUPSWITCH_INSN -> {
+          var a = (LookupSwitchInsnNode) abstractInsnNode;
+          writer.print("<td>");
+          writer.print(a.keys);
+          writer.print(' ');
+          writer.print(a.labels);
+        }
+        default -> throw new IllegalArgumentException(Integer.toString(abstractInsnNode.getType()));
       }
 
       writer.print('\n');
@@ -284,6 +348,18 @@ public final class HtmlPrinter {
     writer.print("}\n");
     writer.print("td.fixed {\n");
     writer.print("white-space: nowrap;\n");
+    writer.print("}\n");
+    writer.print("table.bordered, th.bordered, td.bordered {\n");
+    writer.print("border: 1px solid;\n");
+    writer.print("border-collapse: collapse;\n");
+    writer.print("}\n");
+    writer.print("th {\n");
+    writer.print("padding-left: 5px;\n");
+    writer.print("padding-right: 5px;\n");
+    writer.print("}\n");
+    writer.print("td {\n");
+    writer.print("padding-left: 5px;\n");
+    writer.print("padding-right: 5px;\n");
     writer.print("}\n");
     writer.print("</style>\n");
 
