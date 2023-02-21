@@ -51,6 +51,7 @@ public class EtcTest {
   @Test
   public void ext() {
     assertEquals(Etc.ext("foo.txt"), "txt");
+    assertEquals(Etc.ext("foo"), "");
   }
 
   @Test

@@ -124,7 +124,7 @@ public final class HtmlPrinter {
     }
     writer.print(')');
 
-    if (!methodNode.exceptions.isEmpty()) {
+    if (Etc.some(methodNode.exceptions)) {
       writer.print(" throws");
       more = false;
       for (var s : methodNode.exceptions) {
@@ -215,7 +215,7 @@ public final class HtmlPrinter {
     writer.print("<ul>\n");
     writer.print("<li><a href=\"#Contents\">Contents</a>\n");
     writer.print("<li><a href=\"#Class header\">Class header</a>\n");
-    if (!classNode.fields.isEmpty()) {
+    if (Etc.some(classNode.fields)) {
       writer.print("<li><a href=\"#Fields\">Fields</a>\n");
       writer.print("<ul>\n");
       for (var fieldNode : classNode.fields) {
@@ -224,7 +224,7 @@ public final class HtmlPrinter {
       }
       writer.print("</ul>\n");
     }
-    if (!classNode.methods.isEmpty()) {
+    if (Etc.some(classNode.methods)) {
       writer.print("<li><a href=\"#Methods\">Methods</a>\n");
       writer.print("<ul>\n");
       for (var methodNode : classNode.methods) {
@@ -256,7 +256,7 @@ public final class HtmlPrinter {
     if (classNode.superName != null && !classNode.superName.equals("java/lang/Object"))
       writer.print(" extends " + classNode.superName);
 
-    if (!classNode.interfaces.isEmpty()) {
+    if (Etc.some(classNode.interfaces)) {
       writer.print(" implements");
       var more = false;
       for (var s : classNode.interfaces) {
@@ -346,11 +346,11 @@ public final class HtmlPrinter {
     writer.print("</table>\n");
 
     // fields
-    if (!classNode.fields.isEmpty()) writer.print("<h1 id=\"Fields\">Fields</h1>\n");
+    if (Etc.some(classNode.fields)) writer.print("<h1 id=\"Fields\">Fields</h1>\n");
     for (var fieldNode : classNode.fields) print(fieldNode);
 
     // methods
-    if (!classNode.methods.isEmpty()) writer.print("<h1 id=\"Methods\">Methods</h1>\n");
+    if (Etc.some(classNode.methods)) writer.print("<h1 id=\"Methods\">Methods</h1>\n");
     for (var methodNode : classNode.methods) print(methodNode);
   }
 
