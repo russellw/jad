@@ -89,6 +89,7 @@ public final class HtmlPrinter {
     writer.print("</code>\n");
 
     writer.print("</table>\n");
+    // TODO annotations
   }
 
   private void print(MethodNode methodNode) {
@@ -183,7 +184,20 @@ public final class HtmlPrinter {
     writer.print(methodNode.annotationDefault);
     writer.print("</code>\n");
 
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Max stack\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.maxStack);
+    writer.print("</code>\n");
+
+    writer.print("<tr>\n");
+    writer.print("<td class=\"bordered\">Max locals\n");
+    writer.print("<td class=\"bordered\"><code>");
+    writer.print(methodNode.maxLocals);
+    writer.print("</code>\n");
+
     writer.print("</table>\n");
+    // TODO parameters and annotations
   }
 
   private void print(ClassNode classNode) {
@@ -215,6 +229,20 @@ public final class HtmlPrinter {
     writer.print("<ul>\n");
     writer.print("<li><a href=\"#Contents\">Contents</a>\n");
     writer.print("<li><a href=\"#Class header\">Class header</a>\n");
+    writer.print("<ul>\n");
+    // TODO actually print these
+    if (Etc.some(classNode.visibleAnnotations))
+      writer.print("<li><a href=\"#Visible annotations\">Visible annotations</a>\n");
+    if (Etc.some(classNode.invisibleAnnotations))
+      writer.print("<li><a href=\"#Invisible annotations\">Invisible annotations</a>\n");
+    if (Etc.some(classNode.visibleTypeAnnotations))
+      writer.print("<li><a href=\"#Visible type annotations\">Visible type annotations</a>\n");
+    if (Etc.some(classNode.invisibleTypeAnnotations))
+      writer.print("<li><a href=\"#Invisible type annotations\">Invisible type annotations</a>\n");
+    if (Etc.some(classNode.attrs)) writer.print("<li><a href=\"#Attrs\">Attrs</a>\n");
+    if (Etc.some(classNode.innerClasses))
+      writer.print("<li><a href=\"#Inner classes\">Inner classes</a>\n");
+    writer.print("</ul>\n");
     if (Etc.some(classNode.fields)) {
       writer.print("<li><a href=\"#Fields\">Fields</a>\n");
       writer.print("<ul>\n");
