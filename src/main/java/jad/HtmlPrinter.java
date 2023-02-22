@@ -19,7 +19,7 @@ public final class HtmlPrinter {
 
   private void linkId(String id, String label) {
     if (label == null) {
-      writer.print(label);
+      writer.print("null");
       return;
     }
 
