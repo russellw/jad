@@ -26,6 +26,7 @@ public final class HtmlPrinter {
     writer.print("</a>");
   }
 
+  @SuppressWarnings("SameParameterValue")
   private void markId(String tag, String id) {
     markId(tag, id, id);
   }
@@ -187,7 +188,7 @@ public final class HtmlPrinter {
         }
         case LabelNode a -> {
           assert label == null;
-          label = labels.getOrDefault(a, label);
+          label = labels.get(a);
           continue;
         }
         case FrameNode a -> {
