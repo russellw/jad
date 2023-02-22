@@ -244,15 +244,19 @@ public final class HtmlPrinter {
         }
         case FieldInsnNode a -> {
           writer.print("<td>");
-          writer.print(a.name);
+          writer.print(a.owner);
+          writer.print('.');
+          writer.print(esc(a.name));
           writer.print(' ');
-          writer.print(a.getType());
+          writer.print(a.desc);
         }
         case MethodInsnNode a -> {
           writer.print("<td>");
-          writer.print(a.name);
+          writer.print(a.owner);
+          writer.print('.');
+          writer.print(esc(a.name));
           writer.print(' ');
-          writer.print(a.getType());
+          writer.print(a.desc);
         }
         case JumpInsnNode a -> {
           writer.print("<td>");
