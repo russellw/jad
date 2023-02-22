@@ -120,10 +120,15 @@ public final class HtmlPrinter {
     // TODO parameters and annotations
 
     // instructions
+    var labelsUsed = new HashSet<LabelNode>();
+    for (var abstractInsnNode : methodNode.instructions)
+      if (abstractInsnNode instanceof JumpInsnNode jumpInsnNode) labelsUsed.add(jumpInsnNode.label);
+
     var i = 0;
     var labels = new HashMap<LabelNode, String>();
     for (var abstractInsnNode : methodNode.instructions)
-      if (abstractInsnNode instanceof LabelNode labelNode) labels.put(labelNode, "L" + i++);
+      if (abstractInsnNode instanceof LabelNode labelNode && labelsUsed.contains(labelNode))
+        labels.put(labelNode, "L" + i++);
 
     writer.print("<table>\n");
 
@@ -144,7 +149,7 @@ public final class HtmlPrinter {
       }
       if (abstractInsnNode instanceof LabelNode labelNode) {
         assert label == null;
-        label = labels.get(labelNode);
+        label = labels.getOrDefault(labelNode, label);
         continue;
       }
       if (abstractInsnNode instanceof FrameNode frameNode1) {
@@ -330,37 +335,29 @@ public final class HtmlPrinter {
     writer.print("<html lang=\"en\">\n");
     writer.print("<meta charset=\"utf-8\"/>\n");
     writer.printf("<title>%s</title>\n", simple(classNode.name));
+
     writer.print("<style>\n");
+
     writer.print("html * {\n");
-    writer.print("font-family: \"Courier New\";\n");
+    writer.print("font-family: \"Verdana\";\n");
     writer.print("}\n");
+
+    // TODO Will caption actually be used?
     writer.print("caption {\n");
     writer.print("text-align: left;\n");
     writer.print("white-space: nowrap;\n");
     writer.print("}\n");
-    writer.print("table.bordered, th.bordered, td.bordered {\n");
-    writer.print("border: 1px solid;\n");
-    writer.print("border-collapse: collapse;\n");
-    writer.print("padding: 5px;\n");
-    writer.print("}\n");
-    writer.print("table.padded, th.padded, td.padded {\n");
-    writer.print("padding: 3px;\n");
-    writer.print("}\n");
-    writer.print("td.fixed {\n");
-    writer.print("white-space: nowrap;\n");
-    writer.print("}\n");
+
     writer.print("table.bordered, th.bordered, td.bordered {\n");
     writer.print("border: 1px solid;\n");
     writer.print("border-collapse: collapse;\n");
     writer.print("}\n");
-    writer.print("th {\n");
-    writer.print("padding-left: 5px;\n");
-    writer.print("padding-right: 5px;\n");
+
+    writer.print("th, td {\n");
+    writer.print("padding-left: 4px;\n");
+    writer.print("padding-right: 4px;\n");
     writer.print("}\n");
-    writer.print("td {\n");
-    writer.print("padding-left: 5px;\n");
-    writer.print("padding-right: 5px;\n");
-    writer.print("}\n");
+
     writer.print("</style>\n");
 
     // contents
