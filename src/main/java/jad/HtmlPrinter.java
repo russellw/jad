@@ -265,7 +265,7 @@ public final class HtmlPrinter {
         }
         case LdcInsnNode a -> {
           writer.print("<td>");
-          writer.print(a.cst);
+          writer.print(Etc.quote(a.cst));
         }
         case IincInsnNode a -> {
           writer.print("<td>%");

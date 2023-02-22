@@ -1,6 +1,7 @@
 package jad;
 
 import java.util.Collection;
+import org.apache.commons.text.StringEscapeUtils;
 
 public final class Etc {
   static final String[] mnemonics = {
@@ -215,6 +216,14 @@ public final class Etc {
 
   static <T> boolean some(Collection<T> v) {
     return v != null && !v.isEmpty();
+  }
+
+  static String quote(Object a) {
+    return switch (a) {
+      case String a1 -> '"' + StringEscapeUtils.escapeJava(a1) + '"';
+      case Character a1 -> '\'' + StringEscapeUtils.escapeJava(a1.toString()) + '\'';
+      default -> a.toString();
+    };
   }
 
   static String ext(String file) {
