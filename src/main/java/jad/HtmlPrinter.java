@@ -17,6 +17,11 @@ public final class HtmlPrinter {
   }
 
   private void linkId(String id, String label) {
+    if (label == null) {
+      writer.print(label);
+      return;
+    }
+
     writer.print("<a href=\"#");
     writer.print(id);
     writer.print("\">");
@@ -159,6 +164,7 @@ public final class HtmlPrinter {
       switch (abstractInsnNode) {
         case JumpInsnNode a -> labelsUsed.add(a.label);
         case TableSwitchInsnNode a -> labelsUsed.addAll(a.labels);
+        case LookupSwitchInsnNode a -> labelsUsed.addAll(a.labels);
         default -> {}
       }
 
@@ -222,57 +228,48 @@ public final class HtmlPrinter {
       writer.print(Etc.mnemonics[abstractInsnNode.getOpcode()]);
 
       // operands
-      switch (abstractInsnNode.getType()) {
-        case AbstractInsnNode.INSN -> {}
-        case AbstractInsnNode.INT_INSN -> {
-          var a = (IntInsnNode) abstractInsnNode;
+      switch (abstractInsnNode) {
+        case InsnNode ignored -> {}
+        case IntInsnNode a -> {
           writer.print("<td>");
           writer.print(a.operand);
         }
-        case AbstractInsnNode.VAR_INSN -> {
-          var a = (VarInsnNode) abstractInsnNode;
+        case VarInsnNode a -> {
           writer.print("<td>%");
           writer.print(a.var);
         }
-        case AbstractInsnNode.TYPE_INSN -> {
-          var a = (TypeInsnNode) abstractInsnNode;
+        case TypeInsnNode a -> {
           writer.print("<td>");
           writer.print(a.desc);
         }
-        case AbstractInsnNode.FIELD_INSN -> {
-          var a = (FieldInsnNode) abstractInsnNode;
+        case FieldInsnNode a -> {
           writer.print("<td>");
           writer.print(a.name);
           writer.print(' ');
           writer.print(a.getType());
         }
-        case AbstractInsnNode.METHOD_INSN -> {
-          var a = (MethodInsnNode) abstractInsnNode;
+        case MethodInsnNode a -> {
           writer.print("<td>");
           writer.print(a.name);
           writer.print(' ');
           writer.print(a.getType());
         }
-        case AbstractInsnNode.JUMP_INSN -> {
-          var a = (JumpInsnNode) abstractInsnNode;
+        case JumpInsnNode a -> {
           writer.print("<td>");
           var s = labels.get(a.label);
           linkId(name + '_' + s, s);
         }
-        case AbstractInsnNode.LDC_INSN -> {
-          var a = (LdcInsnNode) abstractInsnNode;
+        case LdcInsnNode a -> {
           writer.print("<td>");
           writer.print(a.cst);
         }
-        case AbstractInsnNode.IINC_INSN -> {
-          var a = (IincInsnNode) abstractInsnNode;
+        case IincInsnNode a -> {
           writer.print("<td>%");
           writer.print(a.var);
           writer.print(' ');
           writer.print(a.incr);
         }
-        case AbstractInsnNode.TABLESWITCH_INSN -> {
-          var a = (TableSwitchInsnNode) abstractInsnNode;
+        case TableSwitchInsnNode a -> {
           writer.print("<td>");
           writer.print(a.min);
           writer.print(' ');
@@ -286,12 +283,15 @@ public final class HtmlPrinter {
             linkId(name + '_' + s, s);
           }
         }
-        case AbstractInsnNode.LOOKUPSWITCH_INSN -> {
-          var a = (LookupSwitchInsnNode) abstractInsnNode;
+        case LookupSwitchInsnNode a -> {
           writer.print("<td>");
-          writer.print(a.keys);
-          writer.print(' ');
-          writer.print(a.labels);
+          var s = labels.get(a.dflt);
+          linkId(name + '_' + s, s);
+          for (var L : a.labels) {
+            writer.print(' ');
+            s = labels.get(L);
+            linkId(name + '_' + s, s);
+          }
         }
         default -> throw new IllegalArgumentException(Integer.toString(abstractInsnNode.getType()));
       }
