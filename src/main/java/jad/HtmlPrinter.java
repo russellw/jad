@@ -12,6 +12,10 @@ public final class HtmlPrinter {
   private Set<String> classNames = new HashSet<>();
   private PrintWriter writer;
 
+  private void linkId(String id) {
+    linkId(id, id);
+  }
+
   private void linkId(String id, String label) {
     writer.print("<a href=\"#");
     writer.print(id);
@@ -20,6 +24,10 @@ public final class HtmlPrinter {
     writer.print(label);
 
     writer.print("</a>");
+  }
+
+  private void markId(String tag, String id) {
+    markId(tag, id, id);
   }
 
   private void markId(String tag, String id, String label) {
@@ -40,7 +48,7 @@ public final class HtmlPrinter {
   private void print(MethodNode methodNode) {
     // heading
     var name = esc(methodNode.name);
-    markId("h2", name, name);
+    markId("h2", name);
 
     // embellished name
     if ((methodNode.access & ACC_PUBLIC) != 0) writer.print("public ");
@@ -57,7 +65,7 @@ public final class HtmlPrinter {
 
     writer.print(Type.getReturnType(methodNode.desc).getClassName());
     writer.print(' ');
-    writer.print(esc(methodNode.name));
+    writer.print(name);
 
     writer.print('(');
     var more = false;
@@ -106,7 +114,7 @@ public final class HtmlPrinter {
     writer.print("<tr>\n");
     writer.print("<td class=\"bordered\">Name\n");
     writer.print("<td class=\"bordered\">");
-    writer.print(methodNode.name);
+    writer.print(name);
     writer.print('\n');
 
     writer.print("<tr>\n");
@@ -203,13 +211,7 @@ public final class HtmlPrinter {
       // label
       writer.print("<td>");
       if (label != null) {
-        writer.print("<a href=\"#");
-        writer.print(methodNode.name);
-        writer.print('_');
-        writer.print(label);
-        writer.print("\">");
-        writer.print(label);
-        writer.print("</a>");
+        markId("span", name + '_' + label, label);
         label = null;
       }
       writer.print('\n');
@@ -253,7 +255,8 @@ public final class HtmlPrinter {
         case AbstractInsnNode.JUMP_INSN -> {
           var a = (JumpInsnNode) abstractInsnNode;
           writer.print("<td>");
-          writer.print(labels.get(a.label));
+          var s = labels.get(a.label);
+          linkId(name + '_' + s, s);
         }
         case AbstractInsnNode.LDC_INSN -> {
           var a = (LdcInsnNode) abstractInsnNode;
@@ -274,7 +277,13 @@ public final class HtmlPrinter {
           writer.print(' ');
           writer.print(a.max);
           writer.print(' ');
-          writer.print(a.labels);
+          var s = labels.get(a.dflt);
+          linkId(name + '_' + s, s);
+          for (var L : a.labels) {
+            writer.print(' ');
+            s = labels.get(L);
+            linkId(name + '_' + s, s);
+          }
         }
         case AbstractInsnNode.LOOKUPSWITCH_INSN -> {
           var a = (LookupSwitchInsnNode) abstractInsnNode;
@@ -294,8 +303,7 @@ public final class HtmlPrinter {
 
   private void print(FieldNode fieldNode) {
     // heading
-    var name = fieldNode.name;
-    markId("h2", name, name);
+    markId("h2", fieldNode.name);
 
     // embellished name
     if ((fieldNode.access & ACC_PUBLIC) != 0) writer.print("public ");
@@ -402,40 +410,77 @@ public final class HtmlPrinter {
     // contents
     writer.print("<h1 id=\"Contents\">Contents</h1>\n");
     writer.print("<ul>\n");
-    writer.print("<li><a href=\"#Contents\">Contents</a>\n");
-    writer.print("<li><a href=\"#Class header\">Class header</a>\n");
+
+    writer.print("<li>");
+    linkId("Contents");
+    writer.print('\n');
+
+    writer.print("<li>");
+    linkId("Class header");
+    writer.print('\n');
+
     writer.print("<ul>\n");
     // TODO actually print these
-    if (Etc.some(classNode.visibleAnnotations))
-      writer.print("<li><a href=\"#Visible annotations\">Visible annotations</a>\n");
-    if (Etc.some(classNode.invisibleAnnotations))
-      writer.print("<li><a href=\"#Invisible annotations\">Invisible annotations</a>\n");
-    if (Etc.some(classNode.visibleTypeAnnotations))
-      writer.print("<li><a href=\"#Visible type annotations\">Visible type annotations</a>\n");
-    if (Etc.some(classNode.invisibleTypeAnnotations))
-      writer.print("<li><a href=\"#Invisible type annotations\">Invisible type annotations</a>\n");
-    if (Etc.some(classNode.attrs)) writer.print("<li><a href=\"#Attrs\">Attrs</a>\n");
-    if (Etc.some(classNode.innerClasses))
-      writer.print("<li><a href=\"#Inner classes\">Inner classes</a>\n");
+    if (Etc.some(classNode.visibleAnnotations)) {
+      writer.print("<li>");
+      linkId("Visible annotations");
+      writer.print('\n');
+    }
+    if (Etc.some(classNode.invisibleAnnotations)) {
+      writer.print("<li>");
+      linkId("Invisible annotations");
+      writer.print('\n');
+    }
+    if (Etc.some(classNode.visibleTypeAnnotations)) {
+      writer.print("<li>");
+      linkId("Visible type annotations");
+      writer.print('\n');
+    }
+    if (Etc.some(classNode.invisibleTypeAnnotations)) {
+      writer.print("<li>");
+      linkId("Invisible type annotations");
+      writer.print('\n');
+    }
+    if (Etc.some(classNode.attrs)) {
+      writer.print("<li>");
+      linkId("Attrs");
+      writer.print('\n');
+    }
+    if (Etc.some(classNode.innerClasses)) {
+      writer.print("<li>");
+      linkId("Inner classes");
+      writer.print('\n');
+    }
     writer.print("</ul>\n");
+
     if (Etc.some(classNode.fields)) {
-      writer.print("<li><a href=\"#Fields\">Fields</a>\n");
+      writer.print("<li>");
+      linkId("Fields");
+      writer.print('\n');
+
       writer.print("<ul>\n");
       for (var fieldNode : classNode.fields) {
-        var name = fieldNode.name;
-        writer.printf("<li><a href=\"#%s\">%s</a>\n", name, name);
+        writer.print("<li>");
+        linkId(fieldNode.name);
+        writer.print('\n');
       }
       writer.print("</ul>\n");
     }
+
     if (Etc.some(classNode.methods)) {
-      writer.print("<li><a href=\"#Methods\">Methods</a>\n");
+      writer.print("<li>");
+      linkId("Methods");
+      writer.print('\n');
+
       writer.print("<ul>\n");
       for (var methodNode : classNode.methods) {
-        var name = esc(methodNode.name);
-        writer.printf("<li><a href=\"#%s\">%s</a>\n", name, name);
+        writer.print("<li>");
+        linkId(esc(methodNode.name));
+        writer.print('\n');
       }
       writer.print("</ul>\n");
     }
+
     writer.print("</ul>\n");
 
     // class header
