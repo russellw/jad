@@ -122,13 +122,17 @@ public final class HtmlPrinter {
     // instructions
     var labelsUsed = new HashSet<LabelNode>();
     for (var abstractInsnNode : methodNode.instructions)
-      if (abstractInsnNode instanceof JumpInsnNode jumpInsnNode) labelsUsed.add(jumpInsnNode.label);
+      switch (abstractInsnNode) {
+        case JumpInsnNode a -> labelsUsed.add(a.label);
+        case TableSwitchInsnNode a -> labelsUsed.addAll(a.labels);
+        default -> {}
+      }
 
     var i = 0;
     var labels = new HashMap<LabelNode, String>();
     for (var abstractInsnNode : methodNode.instructions)
-      if (abstractInsnNode instanceof LabelNode labelNode && labelsUsed.contains(labelNode))
-        labels.put(labelNode, "L" + i++);
+      if (abstractInsnNode instanceof LabelNode a && labelsUsed.contains(a))
+        labels.put(a, "L" + i++);
 
     writer.print("<table>\n");
 
@@ -142,20 +146,23 @@ public final class HtmlPrinter {
     String label = null;
     FrameNode frameNode = null;
     for (var abstractInsnNode : methodNode.instructions) {
-      if (abstractInsnNode instanceof LineNumberNode lineNumberNode) {
-        assert line < 0;
-        line = lineNumberNode.line;
-        continue;
-      }
-      if (abstractInsnNode instanceof LabelNode labelNode) {
-        assert label == null;
-        label = labels.getOrDefault(labelNode, label);
-        continue;
-      }
-      if (abstractInsnNode instanceof FrameNode frameNode1) {
-        // assert frameNode == null;
-        frameNode = frameNode1;
-        continue;
+      switch (abstractInsnNode) {
+        case LineNumberNode a -> {
+          assert line < 0;
+          line = a.line;
+          continue;
+        }
+        case LabelNode a -> {
+          assert label == null;
+          label = labels.getOrDefault(a, label);
+          continue;
+        }
+        case FrameNode a -> {
+          // assert frameNode == null;
+          frameNode = a;
+          continue;
+        }
+        default -> {}
       }
 
       writer.print("<tr>\n");
@@ -178,8 +185,7 @@ public final class HtmlPrinter {
 
       // opcode
       writer.print("<td>");
-      var opcode = abstractInsnNode.getOpcode();
-      if (opcode >= 0) writer.print(Etc.mnemonics[opcode]);
+      writer.print(Etc.mnemonics[abstractInsnNode.getOpcode()]);
 
       // operands
       switch (abstractInsnNode.getType()) {
