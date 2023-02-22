@@ -12,10 +12,35 @@ public final class HtmlPrinter {
   private Set<String> classNames = new HashSet<>();
   private PrintWriter writer;
 
+  private void linkId(String id, String label) {
+    writer.print("<a href=\"#");
+    writer.print(id);
+    writer.print("\">");
+
+    writer.print(label);
+
+    writer.print("</a>");
+  }
+
+  private void markId(String tag, String id, String label) {
+    writer.print('<');
+    writer.print(tag);
+    writer.print(' ');
+    writer.print("id=\"");
+    writer.print(id);
+    writer.print("\">");
+
+    writer.print(label);
+
+    writer.print("</");
+    writer.print(tag);
+    writer.print('>');
+  }
+
   private void print(MethodNode methodNode) {
     // heading
     var name = esc(methodNode.name);
-    writer.printf("<h2 id=\"%s\">%s</h2>\n", name, name);
+    markId("h2", name, name);
 
     // embellished name
     if ((methodNode.access & ACC_PUBLIC) != 0) writer.print("public ");
@@ -178,7 +203,13 @@ public final class HtmlPrinter {
       // label
       writer.print("<td>");
       if (label != null) {
+        writer.print("<a href=\"#");
+        writer.print(methodNode.name);
+        writer.print('_');
         writer.print(label);
+        writer.print("\">");
+        writer.print(label);
+        writer.print("</a>");
         label = null;
       }
       writer.print('\n');
@@ -264,7 +295,7 @@ public final class HtmlPrinter {
   private void print(FieldNode fieldNode) {
     // heading
     var name = fieldNode.name;
-    writer.printf("<h2 id=\"%s\">%s</h2>\n", name, name);
+    markId("h2", name, name);
 
     // embellished name
     if ((fieldNode.access & ACC_PUBLIC) != 0) writer.print("public ");
@@ -340,7 +371,9 @@ public final class HtmlPrinter {
     writer.print("<!DOCTYPE html>\n");
     writer.print("<html lang=\"en\">\n");
     writer.print("<meta charset=\"utf-8\"/>\n");
-    writer.printf("<title>%s</title>\n", simple(classNode.name));
+    writer.print("<title>");
+    writer.print(simple(classNode.name));
+    writer.print("</title>\n");
 
     writer.print("<style>\n");
 
