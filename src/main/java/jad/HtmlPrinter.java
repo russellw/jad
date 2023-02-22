@@ -5,6 +5,7 @@ import static org.objectweb.asm.Opcodes.*;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.*;
+import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
@@ -53,7 +54,7 @@ public final class HtmlPrinter {
 
   private void print(MethodNode methodNode) {
     // heading
-    var name = esc(methodNode.name);
+    var name = StringEscapeUtils.escapeHtml4(methodNode.name);
     markId("h2", name);
 
     // embellished name
@@ -246,7 +247,7 @@ public final class HtmlPrinter {
           writer.print("<td>");
           writer.print(a.owner);
           writer.print('.');
-          writer.print(esc(a.name));
+          writer.print(StringEscapeUtils.escapeHtml4(a.name));
           writer.print(' ');
           writer.print(a.desc);
         }
@@ -254,7 +255,7 @@ public final class HtmlPrinter {
           writer.print("<td>");
           writer.print(a.owner);
           writer.print('.');
-          writer.print(esc(a.name));
+          writer.print(StringEscapeUtils.escapeHtml4(a.name));
           writer.print(' ');
           writer.print(a.desc);
         }
@@ -480,7 +481,7 @@ public final class HtmlPrinter {
       writer.print("<ul>\n");
       for (var methodNode : classNode.methods) {
         writer.print("<li>");
-        linkId(esc(methodNode.name));
+        linkId(StringEscapeUtils.escapeHtml4(methodNode.name));
         writer.print('\n');
       }
       writer.print("</ul>\n");
@@ -603,12 +604,6 @@ public final class HtmlPrinter {
     // methods
     if (Etc.some(classNode.methods)) writer.print("<h1 id=\"Methods\">Methods</h1>\n");
     for (var methodNode : classNode.methods) print(methodNode);
-  }
-
-  private static String esc(String s) {
-    s = s.replace("<", "&lt;");
-    s = s.replace(">", "&gt;");
-    return s;
   }
 
   private static String simple(String name) {
